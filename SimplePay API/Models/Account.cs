@@ -9,4 +9,8 @@ public class Account
     public double AccountBalance { get; set; }
 
     public DateTime LastModify { get; set; }
+
+    public User? User { get; set; }
+
+    public Transaction? Transaction{ get; set; }
 }
