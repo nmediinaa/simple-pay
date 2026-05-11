@@ -1,0 +1,10 @@
+﻿namespace SimplePay_API.Models;
+
+public class User
+{
+    public int Id { get; set; }
+
+    public string Name { get; set; }
+
+    public DateTime SingUpDate { get; set; }
+}
