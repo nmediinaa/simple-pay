@@ -13,6 +13,5 @@ public class AppDbContext : DbContext
 
     //Mapeanda <Entidades> => tabelas no banco
     public DbSet<Account> Accounts{ get; set; }
-    public DbSet<Transaction> Transactions{ get; set; }
     public DbSet<User> Users{ get; set; }
 }
