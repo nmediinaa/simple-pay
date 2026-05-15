@@ -9,7 +9,7 @@ namespace SimplePay_API.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly AppDbContext? _context;
+    private readonly AppDbContext _context;
 
     public UserController(AppDbContext context)
     {
@@ -25,5 +25,16 @@ public class UserController : ControllerBase
 
         return Ok(listUsers);
 
+    }
+    [HttpGet("{id:int}")]//Aqui travamos a nossa a somente receber inteiros, se receber outra coisa e 400
+    public ActionResult<User> GetUserById(int id)
+    {
+        if (id <= 0) return NotFound($"Id invalido");
+
+        var user = _context.Users.FirstOrDefault(u => u.Id == id);
+
+        if (user == null) return NotFound($"Usuario de id = {id} nao encontrado!");
+
+        return Ok(user);
     }
 }
