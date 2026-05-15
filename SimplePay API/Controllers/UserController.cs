@@ -37,4 +37,12 @@ public class UserController : ControllerBase
 
         return Ok(user);
     }
+    
+    [HttpPost]
+    public ActionResult CreateUser(User user)
+    {
+        _context.Users.Add(user);
+        _context.SaveChanges();
+        return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, User);
+    }
 }
