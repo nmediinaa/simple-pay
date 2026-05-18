@@ -57,4 +57,17 @@ public class UserController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpDelete("{id:int}")]
+    public ActionResult DeleteUser(int id)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Id == id);
+
+        if (user == null) return NotFound();
+
+        _context.Remove(user);
+        _context.SaveChanges();
+
+        return Ok(user);
+    }
 }
