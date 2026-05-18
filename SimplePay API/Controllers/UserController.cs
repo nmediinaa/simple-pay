@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SimplePay_API.Context;
 using SimplePay_API.Models;
 using System.Collections;
@@ -26,7 +27,7 @@ public class UserController : ControllerBase
         return Ok(listUsers);
 
     }
-    [HttpGet("{id:int}")]//Aqui travamos a nossa a somente receber inteiros, se receber outra coisa e 400
+    [HttpGet("{id:int}")]//Aqui travamos a nossa rota a somente receber inteiros, se receber outra coisa e 400
     public ActionResult<User> GetUserById(int id)
     {
         if (id <= 0) return NotFound($"Id invalido");
@@ -44,5 +45,16 @@ public class UserController : ControllerBase
         _context.Users.Add(user);
         _context.SaveChanges();
         return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, User);
+    }
+
+    [HttpPut("{id:int}")]
+    public ActionResult UpdateUser(int id, User user) 
+    {
+        if (id != user.Id) return BadRequest();
+       
+        _context.Users.Update(user);
+        _context.SaveChanges();
+
+        return NoContent();
     }
 }
