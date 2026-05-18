@@ -7,7 +7,10 @@ public class User
     public int Id { get; set; }
 
     [Required(ErrorMessage = "Nome do titular da conta nao deve ser nulo")]
-    public string? Name { get; set; }
+    public string Name { get; set; }
+
+    [Required(ErrorMessage = "Email do titular da conta nao deve ser nulo")]
+    public string Email { get; set; }
 
     public DateTime SingUpDate { get; set; }
 
