@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SimplePay_API.Context;
 using SimplePay_API.Models;
-using System.Collections;
 
 namespace SimplePay_API.Controllers;
 
