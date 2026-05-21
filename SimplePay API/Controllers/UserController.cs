@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SimplePay_API.Context;
 using SimplePay_API.Models;
 
@@ -18,19 +19,24 @@ public class UserController : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<User>> GetAllUsers()
     {
-        var listUsers = _context.Users.ToList();
+        var listUsers = _context.Users
+            .AsNoTracking()
+            .ToList();
         
         if(listUsers == null) return NotFound("Usuarios nao encotrado...");
 
         return Ok(listUsers);
 
     }
+
     [HttpGet("{id:int}")]//Aqui travamos a nossa rota a somente receber inteiros, se receber outra coisa e 400
     public ActionResult<User> GetUserById(int id)
     {
         if (id <= 0) return NotFound($"Id invalido");
 
-        var user = _context.Users.FirstOrDefault(u => u.Id == id);
+        var user = _context.Users
+            .AsNoTracking()
+            .FirstOrDefault(u => u.Id == id);
 
         if (user == null) return NotFound($"Usuario de id = {id} nao encontrado!");
 
