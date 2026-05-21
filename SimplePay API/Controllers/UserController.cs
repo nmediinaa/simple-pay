@@ -19,59 +19,103 @@ public class UserController : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<User>> GetAllUsers()
     {
-        var listUsers = _context.Users
+        try
+        {
+            var listUsers = _context.Users
             .AsNoTracking()
             .ToList();
-        
-        if(listUsers == null) return NotFound("Usuarios nao encotrado...");
 
-        return Ok(listUsers);
+            if (listUsers == null) return NotFound("Usuarios nao encotrado...");
+
+            return Ok(listUsers);
+        }
+        catch (Exception)
+        {
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao processar sua requisicao...");
+        }
 
     }
 
     [HttpGet("{id:int}")]//Aqui travamos a nossa rota a somente receber inteiros, se receber outra coisa e 400
     public ActionResult<User> GetUserById(int id)
     {
-        if (id <= 0) return NotFound($"Id invalido");
+        try
+        {
+            if (id <= 0) return NotFound($"Id = {id} invalido...");
 
-        var user = _context.Users
-            .AsNoTracking()
-            .FirstOrDefault(u => u.Id == id);
+            var user = _context.Users
+                .AsNoTracking()
+                .FirstOrDefault(u => u.Id == id);
 
-        if (user == null) return NotFound($"Usuario de id = {id} nao encontrado!");
+            if (user == null) return NotFound($"Usuario de id = {id} nao encontrado!");
 
-        return Ok(user);
+            return Ok(user);
+        }
+        catch (Exception)
+        {
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao processar sua requisicao...");
+        }
+        
     }
     
     [HttpPost]
     public ActionResult CreateUser(User user)
     {
-        _context.Users.Add(user);
-        _context.SaveChanges();
-        return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, User);
+        try
+        {
+            _context.Users.Add(user);
+            _context.SaveChanges();
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, User);
+        }
+        catch (Exception)
+        {
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao processar sua requisicao...");
+        }
+        
     }
 
     [HttpPut("{id:int}")]
     public ActionResult UpdateUser(int id, User user) 
     {
-        if (id != user.Id) return BadRequest();
-       
-        _context.Users.Update(user);
-        _context.SaveChanges();
+        try
+        {
+            if (id != user.Id) return BadRequest($"Id de usuarios divergentes...");
 
-        return NoContent();
+            _context.Users.Update(user);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+        catch (Exception)
+        {
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao processar sua requisicao...");
+        }
+        
     }
 
     [HttpDelete("{id:int}")]
     public ActionResult DeleteUser(int id)
     {
-        var user = _context.Users.FirstOrDefault(u => u.Id == id);
+        try
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
 
-        if (user == null) return NotFound();
+            if (user == null) return NotFound($"Usuario de id = {id} nao encontrado...");
 
-        _context.Remove(user);
-        _context.SaveChanges();
+            _context.Remove(user);
+            _context.SaveChanges();
 
-        return Ok(user);
+            return Ok(user);
+        }
+        catch (Exception)
+        {
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao processar sua requisicao...");
+        }
+       
     }
 }
