@@ -21,6 +21,7 @@ public class AccountController : ControllerBase
     {
         var listAccounts = _context.Accounts
             .Include(a => a.User)
+            .AsNoTracking()
             .ToList();
 
         if (listAccounts == null) return NotFound();
@@ -31,7 +32,9 @@ public class AccountController : ControllerBase
     [HttpGet("{id:int}")]
     public ActionResult GetAccountById(int id)
     {
-        var account = _context.Accounts.FirstOrDefault(a => a.AccountId == id);
+        var account = _context.Accounts
+            .AsNoTracking()
+            .FirstOrDefault(a => a.AccountId == id);
         
         if(account == null) return NotFound("Conta nao encontrada...");
         return Ok(account);
