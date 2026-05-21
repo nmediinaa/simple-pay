@@ -1,10 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using SimplePay_API.Context;
+using System.Reflection.Emit;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(opt => 
+    opt.JsonSerializerOptions
+        .ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -13,6 +19,7 @@ string? connString = builder.Configuration.GetConnectionString("DefaultConnectio
 builder.Services.AddDbContext<AppDbContext>(opts => 
         opts.UseMySql(connString, ServerVersion.AutoDetect(connString))
 );
+
 
 var app = builder.Build();
 

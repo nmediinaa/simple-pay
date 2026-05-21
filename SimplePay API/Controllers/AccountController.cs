@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SimplePay_API.Context;
 using SimplePay_API.Models;
 
@@ -13,6 +14,18 @@ public class AccountController : ControllerBase
     public AccountController(AppDbContext context)
     {
         _context = context;
+    }
+
+    [HttpGet]
+    public ActionResult<IEnumerable<Account>> GetAllAccounts()
+    {
+        var listAccounts = _context.Accounts
+            .Include(a => a.User)
+            .ToList();
+
+        if (listAccounts == null) return NotFound();
+
+        return Ok(listAccounts);
     }
 
     [HttpGet("{id:int}")]
