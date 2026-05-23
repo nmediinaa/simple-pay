@@ -16,14 +16,15 @@ public class UserController : ControllerBase
         _context = context;
     }
 
+
     [HttpGet]
-    public ActionResult<IEnumerable<User>> GetAllUsers()
+    public async Task<ActionResult<IEnumerable<User>>> GetAllUsersAsync()
     {
         try
         {
-            var listUsers = _context.Users
+            var listUsers = await _context.Users
             .AsNoTracking()
-            .ToList();
+            .ToListAsync();
 
             if (listUsers == null) return NotFound("Usuarios nao encotrado...");
 
@@ -38,15 +39,15 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id:int}")]//Aqui travamos a nossa rota a somente receber inteiros, se receber outra coisa e 400
-    public ActionResult<User> GetUserById(int id)
+    public async Task<ActionResult<User>> GetUserByIdAsync(int id)
     {
         try
         {
             if (id <= 0) return NotFound($"Id = {id} invalido...");
 
-            var user = _context.Users
+            var user = await _context.Users
                 .AsNoTracking()
-                .FirstOrDefault(u => u.Id == id);
+                .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null) return NotFound($"Usuario de id = {id} nao encontrado!");
 
@@ -61,13 +62,14 @@ public class UserController : ControllerBase
     }
     
     [HttpPost]
-    public ActionResult CreateUser(User user)
+    public async Task<ActionResult> CreateUserAsync(User user)
     {
         try
         {
-            _context.Users.Add(user);
-            _context.SaveChanges();
-            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, User);
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+            
+            return CreatedAtAction(nameof(GetUserByIdAsync), new { id = user.Id }, User);
         }
         catch (Exception)
         {
@@ -78,14 +80,24 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public ActionResult UpdateUser(int id, User user) 
+    public async Task<ActionResult> UpdateUserAsync(int id, User user) 
     {
+        //Aqui temos um exemplo de update completo, onde primeiro buscamos o usuario no banco,
+        //depois fazemos o mapeamento manual dos campos e por fim atualizamos o usuario.
+
         try
         {
             if (id != user.Id) return BadRequest($"Id de usuarios divergentes...");
 
-            _context.Users.Update(user);
-            _context.SaveChanges();
+           
+            var userInDB = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+
+            //Mapeamento manual, poderia ser feito com o AutoMapper!
+            userInDB.Name = user.Name;
+            userInDB.Email = user.Email;
+
+            _context.Users.Update(user); //Update efetuado em memória
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -98,16 +110,16 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public ActionResult DeleteUser(int id)
+    public async Task<ActionResult> DeleteUserAsync(int id)
     {
         try
         {
-            var user = _context.Users.FirstOrDefault(u => u.Id == id);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null) return NotFound($"Usuario de id = {id} nao encontrado...");
 
             _context.Remove(user);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(user);
         }
