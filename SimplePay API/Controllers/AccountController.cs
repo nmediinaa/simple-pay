@@ -17,14 +17,14 @@ public class AccountController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Account>> GetAllAccounts()
+    public async Task<ActionResult<IEnumerable<Account>>> GetAllAccountsAsync()
     {
         try
         {
-            var listAccounts = _context.Accounts
+            var listAccounts = await _context.Accounts
             .Include(a => a.User)
             .AsNoTracking()
-            .ToList();
+            .ToListAsync();
 
             if (listAccounts == null) return NotFound();
 
@@ -40,14 +40,14 @@ public class AccountController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    public ActionResult GetAccountById(int id)
+    public async Task<ActionResult> GetAccountByIdAsync(int id)
     {
 
         try
         {
-            var account = _context.Accounts
+            var account = await _context.Accounts
             .AsNoTracking()
-            .FirstOrDefault(a => a.AccountId == id);
+            .FirstOrDefaultAsync(a => a.AccountId == id);
 
             if (account == null) return NotFound($"Conta de id = {id} nao encontrada...");
             return Ok(account);
@@ -62,7 +62,7 @@ public class AccountController : ControllerBase
 
 
     [HttpPost]
-    public ActionResult CreateAccount(Account account)
+    public async Task<ActionResult> CreateAccountAsync(Account account)
     {
 
         try
@@ -77,10 +77,10 @@ public class AccountController : ControllerBase
             if (!isIdValid) return BadRequest($"O User Id = {userId} nao e valido...");
 
 
-            _context.Accounts.Add(account);
-            _context.SaveChanges();
+            await _context.Accounts.AddAsync(account);
+            await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetAccountById), new { id = account.AccountId }, account);
+            return CreatedAtAction(nameof(GetAccountByIdAsync), new { id = account.AccountId }, account);
         }
         catch (Exception)
         {
