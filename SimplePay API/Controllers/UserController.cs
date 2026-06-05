@@ -69,7 +69,7 @@ public class UserController : ControllerBase
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
             
-            return CreatedAtAction(nameof(GetUserByIdAsync), new { id = user.Id }, User);
+            return CreatedAtAction(nameof(GetUserByIdAsync), new { id = user.Id }, user);
         }
         catch (Exception)
         {
@@ -115,7 +115,7 @@ public class UserController : ControllerBase
         try
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-
+                
             if (user == null) return NotFound($"Usuario de id = {id} nao encontrado...");
 
             _context.Remove(user);

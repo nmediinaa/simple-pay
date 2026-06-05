@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SimplePay_API.Context;
 using SimplePay_API.Models;
+using SimplePay_API.Repositories.Interfaces;
 
 namespace SimplePay_API.Controllers;
 
@@ -9,22 +10,19 @@ namespace SimplePay_API.Controllers;
 [ApiController]
 public class AccountController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IAccountRepository _repository;
 
-    public AccountController(AppDbContext context)
+    public AccountController(IAccountRepository repository)
     {
-        _context = context;
+        _repository = repository;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Account>>> GetAllAccountsAsync()
+    public ActionResult<IEnumerable<Account>> GetAllAccounts()
     {
         try
         {
-            var listAccounts = await _context.Accounts
-            .Include(a => a.User)
-            .AsNoTracking()
-            .ToListAsync();
+            var listAccounts = _repository.GetAllAccounts();
 
             if (listAccounts == null) return NotFound();
 
@@ -40,16 +38,15 @@ public class AccountController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    public async Task<ActionResult> GetAccountByIdAsync(int id)
+    public ActionResult GetAccountById(int id)
     {
 
         try
         {
-            var account = await _context.Accounts
-            .AsNoTracking()
-            .FirstOrDefaultAsync(a => a.AccountId == id);
+            var account = _repository.GetAccountById(id);
 
             if (account == null) return NotFound($"Conta de id = {id} nao encontrada...");
+
             return Ok(account);
         }
         catch (Exception)
@@ -62,25 +59,14 @@ public class AccountController : ControllerBase
 
 
     [HttpPost]
-    public async Task<ActionResult> CreateAccountAsync(Account account)
+    public ActionResult CreateAccount(Account account)
     {
 
         try
         {
-            bool isAccountExist = _context.Accounts.Any(a => a.AccountId == account.AccountId);
+           _repository.CreateAccount(account);
 
-            if (isAccountExist) return BadRequest($"A conta com o id = {account.AccountId} ja existe...");
-
-            int userId = account.UserId;
-            var isIdValid = _context.Users.Any(u => u.Id == userId);
-
-            if (!isIdValid) return BadRequest($"O User Id = {userId} nao e valido...");
-
-
-            await _context.Accounts.AddAsync(account);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetAccountByIdAsync), new { id = account.AccountId }, account);
+            return CreatedAtAction(nameof(GetAccountById), new { id = account.AccountId }, account);
         }
         catch (Exception)
         {

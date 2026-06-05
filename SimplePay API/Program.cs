@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SimplePay_API.Context;
+using SimplePay_API.Repositories;
+using SimplePay_API.Repositories.Interfaces;
 using System.Reflection.Emit;
 using System.Text.Json.Serialization;
 
@@ -13,6 +15,8 @@ builder.Services.AddControllers().AddJsonOptions(opt =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
 string? connString = builder.Configuration.GetConnectionString("DefaultConnection");
 
