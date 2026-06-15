@@ -26,9 +26,9 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-    public bool DeleteUser(User user)
+    public bool DeleteUser(int id)
     {
-        var userToDelete = _context.Users.FirstOrDefault(u => u.Id == user.Id);
+        var userToDelete = _context.Users.FirstOrDefault(u => u.Id == id);
         if (userToDelete != null)
         {
             _context.Users.Remove(userToDelete);

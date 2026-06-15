@@ -9,6 +9,6 @@ public interface IUserRepository
      User GetUserById(int id);
      User CreateUser(User user);
      bool UpdateUser(User user);
-     bool DeleteUser(User user);
+     bool DeleteUser(int id);
 
 }

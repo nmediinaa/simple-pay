@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SimplePay_API.Context;
 using SimplePay_API.Models;
+using SimplePay_API.Repositories.Interfaces;
 
 namespace SimplePay_API.Controllers;
 
@@ -9,23 +10,20 @@ namespace SimplePay_API.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IUserRepository _repository;
 
-    public UserController(AppDbContext context)
+    public UserController(IUserRepository repository)
     {
-        _context = context;
+        _repository = repository;
     }
 
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<User>>> GetAllUsersAsync()
+    public ActionResult<IEnumerable<User>> GetAllUsers()
     {
         try
         {
-            var listUsers = await _context.Users
-            .AsNoTracking()
-            .ToListAsync();
-
+            var listUsers = _repository.GetAllUsers();
             if (listUsers == null) return NotFound("Usuarios nao encotrado...");
 
             return Ok(listUsers);
@@ -39,15 +37,13 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id:int}")]//Aqui travamos a nossa rota a somente receber inteiros, se receber outra coisa e 400
-    public async Task<ActionResult<User>> GetUserByIdAsync(int id)
+    public ActionResult<User> GetUserById(int id)
     {
         try
         {
             if (id <= 0) return NotFound($"Id = {id} invalido...");
 
-            var user = await _context.Users
-                .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Id == id);
+            var user = _repository.GetUserById(id);
 
             if (user == null) return NotFound($"Usuario de id = {id} nao encontrado!");
 
@@ -62,14 +58,13 @@ public class UserController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<ActionResult> CreateUserAsync(User user)
+    public ActionResult CreateUser(User user)
     {
         try
         {
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
-            
-            return CreatedAtAction(nameof(GetUserByIdAsync), new { id = user.Id }, user);
+            _repository.CreateUser(user);
+
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
         catch (Exception)
         {
@@ -80,7 +75,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult> UpdateUserAsync(int id, User user) 
+    public ActionResult UpdateUser(int id, User user) 
     {
         //Aqui temos um exemplo de update completo, onde primeiro buscamos o usuario no banco,
         //depois fazemos o mapeamento manual dos campos e por fim atualizamos o usuario.
@@ -90,14 +85,7 @@ public class UserController : ControllerBase
             if (id != user.Id) return BadRequest($"Id de usuarios divergentes...");
 
            
-            var userInDB = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
-
-            //Mapeamento manual, poderia ser feito com o AutoMapper!
-            userInDB.Name = user.Name;
-            userInDB.Email = user.Email;
-
-            _context.Users.Update(user); //Update efetuado em memória
-            await _context.SaveChangesAsync();
+            _repository.UpdateUser(user);
 
             return NoContent();
         }
@@ -110,18 +98,13 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<ActionResult> DeleteUserAsync(int id)
+    public ActionResult DeleteUser(int id)
     {
         try
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-                
-            if (user == null) return NotFound($"Usuario de id = {id} nao encontrado...");
+            if(_repository.DeleteUser(id)) return NoContent();
 
-            _context.Remove(user);
-            await _context.SaveChangesAsync();
-
-            return Ok(user);
+            return NotFound();
         }
         catch (Exception)
         {
