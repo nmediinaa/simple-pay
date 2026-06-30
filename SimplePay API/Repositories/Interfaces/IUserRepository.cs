@@ -2,13 +2,7 @@
 
 namespace SimplePay_API.Repositories.Interfaces;
 
-public interface IUserRepository
+public interface IUserRepository : IRepository<User>
 {
-
-     IEnumerable<User> GetAllUsers();
-     User GetUserById(int id);
-     User CreateUser(User user);
-     bool UpdateUser(User user);
-     bool DeleteUser(int id);
 
 }

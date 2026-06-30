@@ -18,6 +18,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));//Aqui usamos o typeof para passar o tipo genérico IRepository e Repository
 
 string? connString = builder.Configuration.GetConnectionString("DefaultConnection");
 

@@ -2,12 +2,7 @@
 
 namespace SimplePay_API.Repositories.Interfaces;
 
-public interface IAccountRepository
+public interface IAccountRepository : IRepository<Account>
 {
-
-    IEnumerable<Account> GetAllAccounts();
-    Account GetAccountById(int id);
-    Account CreateAccount(Account account);
-    Account DeleteAccount(int id);
 
 }
