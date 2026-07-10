@@ -19,8 +19,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));//Aqui usamos o typeof para passar o tipo genérico IRepository e Repository
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-string? connString = builder.Configuration.GetConnectionString("DefaultConnection");
+string? connString = builder.Configuration["ConnectionString:DefaultConnection"];
 
 builder.Services.AddDbContext<AppDbContext>(opts => 
         opts.UseMySql(connString, ServerVersion.AutoDetect(connString))

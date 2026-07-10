@@ -10,11 +10,11 @@ namespace SimplePay_API.Controllers;
 [ApiController]
 public class AccountController : ControllerBase
 {
-    private readonly IAccountRepository _repository;
+    private readonly IUnitOfWork _uow;
 
-    public AccountController(IAccountRepository repository)
+    public AccountController(IUnitOfWork uow)
     {
-        _repository = repository;
+        _uow = uow;
     }
 
     [HttpGet]
@@ -22,7 +22,7 @@ public class AccountController : ControllerBase
     {
         try
         {
-            var listAccounts = _repository.GetAllAccounts();
+            var listAccounts = _uow.AccountRepository.GetAll();
 
             if (listAccounts == null) return NotFound();
 
@@ -43,7 +43,7 @@ public class AccountController : ControllerBase
 
         try
         {
-            var account = _repository.GetAccountById(id);
+            var account = _uow.AccountRepository.GetById(a => a.AccountId == id);
 
             if (account == null) return NotFound($"Conta de id = {id} nao encontrada...");
 
@@ -64,7 +64,7 @@ public class AccountController : ControllerBase
 
         try
         {
-           _repository.CreateAccount(account);
+           _uow.AccountRepository.Create(account);
 
             return CreatedAtAction(nameof(GetAccountById), new { id = account.AccountId }, account);
         }

@@ -10,20 +10,19 @@ namespace SimplePay_API.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly IUserRepository _repository;
+    private readonly IUnitOfWork _uow;
 
-    public UserController(IUserRepository repository)
+    public UserController(IUnitOfWork uow)
     {
-        _repository = repository;
+        _uow = uow;
     }
-
 
     [HttpGet]
     public ActionResult<IEnumerable<User>> GetAllUsers()
     {
         try
         {
-            var listUsers = _repository.GetAllUsers();
+            var listUsers = _uow.UserRepository.GetAll();
             if (listUsers == null) return NotFound("Usuarios nao encotrado...");
 
             return Ok(listUsers);
@@ -43,7 +42,7 @@ public class UserController : ControllerBase
         {
             if (id <= 0) return NotFound($"Id = {id} invalido...");
 
-            var user = _repository.GetUserById(id);
+            var user = _uow.UserRepository.GetById(u => u.Id == id);
 
             if (user == null) return NotFound($"Usuario de id = {id} nao encontrado!");
 
@@ -62,7 +61,9 @@ public class UserController : ControllerBase
     {
         try
         {
-            _repository.CreateUser(user);
+            _uow.UserRepository.Create(user);
+
+            _uow.Commit();
 
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
@@ -85,7 +86,8 @@ public class UserController : ControllerBase
             if (id != user.Id) return BadRequest($"Id de usuarios divergentes...");
 
            
-            _repository.UpdateUser(user);
+            _uow.UserRepository.Update(user);
+            _uow.Commit();
 
             return NoContent();
         }
@@ -102,9 +104,11 @@ public class UserController : ControllerBase
     {
         try
         {
-            if(_repository.DeleteUser(id)) return NoContent();
+            var user = _uow.UserRepository.GetById(u => u.Id == id);
+            _uow.UserRepository.Delete(user);
 
-            return NotFound();
+            _uow.Commit();
+            return NoContent();
         }
         catch (Exception)
         {

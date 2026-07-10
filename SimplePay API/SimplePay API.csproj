@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>SimplePay_API</RootNamespace>
+    <UserSecretsId>af5172da-fd66-4e55-ab06-3b027caa8b1b</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
